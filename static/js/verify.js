@@ -1,24 +1,18 @@
-isDown=false,isUp=false;
 pressions=[]
 chars = []
 pass_position= 0;
-pressionStartMoment=null;
+pressions_map = {}
 $("#pass").on({
   keydown: function(e){
-    if(!isDown && e.which != 8 && e.which != 9){
-    isUp = false;
-    isDown = true;
-    pressionStartMoment = new Date().getTime();
+    if(e.which != 8 && e.which != 9){
+    pressions_map[e.key] = new Date().getTime();
   }
   },
   keyup: function(e){
-    if(!isUp && e.which != 8 && e.which != 9){
-      console.log("up")
-      isUp = true;
-      isDown = false;
-      //pression calc
+    if(e.which != 8 && e.which != 9 && e.which != 13){
+
       let pressionEndMoment = new Date().getTime();
-      let pressionDelta = pressionEndMoment - pressionStartMoment;
+      let pressionDelta = pressionEndMoment - pressions_map[e.key];
 
       chars[pass_position]=pressionDelta;
       $("#hidden").val(JSON.stringify(chars))

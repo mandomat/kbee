@@ -49,7 +49,7 @@ def get_formula_result(user_stats,pressions):
         char_pression = pressions[i]
 
         if min(average,median)*(0.95- sdev/average) <= char_pression and \
-        char_pression >= max(average,median)*(1.05- sdev/average):
+        char_pression <= max(average,median)*(1.05 + sdev/average):
             results.append({password[i]:True})
             counter +=1
         else:

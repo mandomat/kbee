@@ -2,8 +2,7 @@ counter=12
 pressions=[]
 chars = []
 pass_position= 0;
-isDown=false,isUp=false;
-pressionStartMoment=null;
+pressions_map = {}
 $(document).ready(function(){
 
   $(window).keydown(function(event){
@@ -36,31 +35,24 @@ $(document).ready(function(){
             $("#pass").val("")
           }
         }
-        else if(!isDown && e.which != 8 && e.which != 9){
-
-          isUp = false;
-          isDown = true;
-
-          pressionStartMoment = new Date().getTime();
+        else if(e.which != 8 && e.which != 9){
+          pressions_map[e.key] = new Date().getTime();
         }
-        else if (e.which != 8){
+        else if (e.which == 8){
           return false;
         }
 
       },
       keyup: function(e){
-        if(!isUp && e.which != 8 && e.which != 9){
-          console.log("up")
+        if(e.which != 8 && e.which != 9 && e.which != 13){
 
-          isUp = true;
-          isDown = false;
-          //pression calc
           let pressionEndMoment = new Date().getTime();
-          let pressionDelta = pressionEndMoment - pressionStartMoment;
+          let pressionDelta = pressionEndMoment - pressions_map[e.key];
           if(chars[pass_position]== null){
             chars[pass_position]=[]
           }
           chars[pass_position].push(pressionDelta);
+          console.log(chars[pass_position])
           pass_position++;
         }
       }
