@@ -25,53 +25,67 @@ def verify():
     if request.method =="POST":
         user = request.form["user"]
         pressions = json.loads(request.form.getlist("pressions")[0])
-        with open("db.json") as db:
-            stats = json.load(db)
 
-        user_stats = stats[user]
-        results = get_formula_result(user_stats,pressions)
+        results = get_formula_result(user,pressions)
 
         return render_template("verify.html",results=results)
     else:
         return render_template("verify.html")
 
-def get_formula_result(user_stats,pressions):
+def get_formula_result(user,pass_pressions):
     #formula
     counter = 0
     results=[]
-    triples = user_stats["triples"]
-    password = user_stats["password"]
-    for i,triple in enumerate(triples):
-        average = triple[0]
-        median = triple[1]
-        sdev = triple[2]
 
-        char_pression = pressions[i]
+    with open("db.json") as db:
+        stats = json.load(db)
 
-        if min(average,median)*(0.95- sdev/average) <= char_pression and \
-        char_pression <= max(average,median)*(1.05 + sdev/average):
+    stat_pressions = stats[user]["pressions"]
+    password = stats[user]["password"]
+    for i,char_pression in enumerate(stat_pressions):
+        average = statistics.mean(list(map(int, char_pression)))
+        median = statistics.median(list(map(int, char_pression)))
+        sdev = statistics.stdev(list(map(int, char_pression)))
+
+        pass_char_pression = pass_pressions[i]
+
+        if min(average,median)*(0.95- sdev/average) <= pass_char_pression and \
+        pass_char_pression <= max(average,median)*(1.05 + sdev/average):
             results.append({password[i]:True})
             counter +=1
         else:
             results.append({password[i]:False})
 
     percentage = (counter/len(results))*100
+
+    if percentage >= 75:
+        for i,stat in enumerate(stat_pressions):
+            stat.append(pass_pressions[i])
+            stat.pop(0)
+
+        stats[user]["pressions"] = stat_pressions
+
+        with open("db.json","w") as db:
+            json.dump(stats, db)
+
     return {"stats":results,"percentage":percentage}
 
 
 def save_file(pressions,user,password):
-    calculated_triples = []
 
     with open("db.json") as db:
         stats = json.load(db)
-    print(type(pressions),file=sys.stderr)
-    for char_pressions in pressions: #pression is an array of arrays of pressions for each char
-        print(char_pressions,file=sys.stderr)
-        average = statistics.mean(list(map(int, char_pressions)))
-        median = statistics.median(list(map(int, char_pressions)))
-        sdeviation = statistics.stdev(list(map(int, char_pressions)))
-        calculated_triples.append((average,median,sdeviation))
 
-    stats[user]={"password":password,"triples":calculated_triples}
     with open("db.json","w") as db:
+        stats[user]={"password":password,"pressions":pressions}
         json.dump(stats, db)
+    #for char_pressions in pressions: #pression is an array of arrays of pressions for each char
+
+        #average = statistics.mean(list(map(int, char_pressions)))
+        #median = statistics.median(list(map(int, char_pressions)))
+        #sdeviation = statistics.stdev(list(map(int, char_pressions)))
+        #calculated_triples.append((average,median,sdeviation))
+
+    #stats[user]={"password":password,"triples":calculated_triples}
+    #with open("db.json","w") as db:
+        #json.dump(stats, db)
