@@ -24,7 +24,17 @@ def enroll():
 def verify():
     if request.method =="POST":
         user = request.form["user"]
+        password = request.form["password"]
         pressions = json.loads(request.form.getlist("pressions")[0])
+
+        with open("db.json") as db:
+            stats = json.load(db)
+
+
+        if  not user in stats or  stats[user]["password"] != password \
+         or len(stats[user]["pressions"]) != len(pressions):
+            error = "Wrong password, wrong typing or wrong username"
+            return render_template("verify.html",error=error)
 
         results = get_formula_result(user,pressions)
 

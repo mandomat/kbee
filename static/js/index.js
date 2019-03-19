@@ -4,6 +4,7 @@ chars = []
 pass_position= 0,array_position=0;
 pressions_map = {}
 deleted = false;
+password=null;
 $(document).ready(function(){
 
   $(window).keydown(function(event){
@@ -17,26 +18,30 @@ $(document).ready(function(){
       keydown: function(e){
 
         if(e.which == 13){
-          console.log(deleted)
+          console.log(counter)
+          if(counter == 12 && !deleted){
+            //the first time the user enter his password
+            password = $("#pass").val();
+          }
+          if($("#pass").val()!= null && $("#pass").val() == password && !deleted){
 
-          switch(counter){
-            case 12: //the first time the user enter his password
-            password = $("#pass").val(); // save the password for further checks
-            break;
-            case 1:
-            $("#hidden").val(JSON.stringify(chars))
-            $("#counter").text(`Premi invia BUSONE`);
-          }
-          if($("#pass").val() == password && counter > 1 && !deleted){
-            $("#counter").text(`${counter-1} passwords left`);
-            $("#pass").val("")
+            counter_text = counter > 1 ? `${counter-1} passwords left`: "Premi invia BUSONE"
+            $("#counter").text(counter_text);
             counter --;
+
+            if(counter == 0){
+              $("#hidden").val(JSON.stringify(chars))
+            }
           }
-          else if(($("#pass").val() != password && counter != 1) || deleted){
-            alert("Wrong password ()")
+          else if($("#pass").val()!= null && ($("#pass").val() != password || deleted )){
+            console.log($("#pass").val() != password)
+            console.log(deleted)
+            alert("Retype the password please")
             chars.pop(array_position)
-            $("#pass").val("")
           }
+
+          if(counter != 0)
+          $("#pass").val("")
 
           pass_position = 0;
           deleted = false;

@@ -5,14 +5,16 @@
     <title></title>
   </head>
   <body>
+    <a href="/">enroll</a>
     <p>Mo metti utente e password di prima e invia. (non sto controllando se la password è corretta)</p>
       <form action="/verify" method="POST">
-        <input type="text" name="user" placeholder="user">
-        <input type="text" id="pass" name="password" placeholder="password">
+        <input type="text" name="user" placeholder="user" required>
+        <input type="text" id="pass" name="password" placeholder="password" required>
         <button type="submit" >Invia</button>
         <input type="hidden" name="pressions" id="hidden"/>
       </form>
   </body>
+  {{error}}
   {% if results %}
   <ul>
   {% for result in results.stats %}
