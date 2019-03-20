@@ -1,34 +1,39 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-  </head>
-  <body>
-    <a href="/">enroll</a>
-    <p>Se sbagli user,pass o sbagli a digitare ritorna errore.</p>
-      <form action="/verify" method="POST">
-        <input type="text" name="user" placeholder="user" required>
-        <input type="text" id="pass" name="password" placeholder="password" required>
-        <button type="submit" >Invia</button>
-        <input type="hidden" name="pressions" id="hidden"/>
-      </form>
-  </body>
-  {{error}}
-  {% if results %}
-  <ul>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+</head>
+<body>
+  <a href="/">enroll</a>
+  <p>Se sbagli user,pass o sbagli a digitare ritorna errore.</p>
+  <form action="/verify" method="POST">
+    <input type="text" name="tester" placeholder="tester" value="{{tester}}" required>
+    <select name="user">
+      {% for user in users %}
+      <option value="{{user}}" {% if selected ==user %} selected {% endif %}>{{user}}</option>
+      {% endfor %}
+    </select>
+    <input type="text" id="pass" name="password" placeholder="password" required>
+    <button type="submit" >Invia</button>
+    <input type="hidden" name="pressions" id="hidden"/>
+  </form>
+</body>
+{{error}}
+{% if results %}
+<ul>
   {% for result in results.stats %}
   {% for key,value in result.items()%}
   <li>'{{key}}':{{value}}</li>
   {% endfor %}
   {% endfor %}
-  </ul>
+</ul>
 
-  {{'%0.2f'| format(results.percentage|float)}}% di successo
-  {% endif %}
-  <script
-    src="http://code.jquery.com/jquery-3.3.1.min.js"
-    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-    crossorigin="anonymous"></script>
-  <script type="text/javascript" src="{{ url_for('static', filename='js/verify.js') }}"></script>
+{{'%0.2f'| format(results.percentage|float)}}% di successo
+{% endif %}
+<script
+src="http://code.jquery.com/jquery-3.3.1.min.js"
+integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+crossorigin="anonymous"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/verify.js') }}"></script>
 </html>

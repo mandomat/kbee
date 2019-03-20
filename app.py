@@ -22,25 +22,25 @@ def enroll():
 
 @app.route("/verify",methods=["POST","GET"])
 def verify():
+    with open("db.json") as db:
+        stats = json.load(db)
+    users=list(stats.keys())
     if request.method =="POST":
+        tester = request.form["tester"]
         user = request.form["user"]
         password = request.form["password"]
         pressions = json.loads(request.form.getlist("pressions")[0])
 
-        with open("db.json") as db:
-            stats = json.load(db)
-
-
         if  not user in stats or  stats[user]["password"] != password \
          or len(stats[user]["pressions"]) != len(pressions):
             error = "Wrong password, wrong typing or wrong username"
-            return render_template("verify.html",error=error)
+            return render_template("verify.html",error=error,selected=user,tester=tester,users=users)
 
         results = get_formula_result(user,pressions)
 
-        return render_template("verify.html",results=results)
+        return render_template("verify.html",results=results,selected=user,tester=tester,users=users)
     else:
-        return render_template("verify.html")
+        return render_template("verify.html",users=users)
 
 def get_formula_result(user,pass_pressions):
     #formula

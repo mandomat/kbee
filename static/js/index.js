@@ -27,7 +27,9 @@ $(document).ready(function(){
           counter --;
 
           if(counter == 0){
-            $("#hidden").val(JSON.stringify(chars))
+            $("#hidden").val(JSON.stringify(chars));
+            $("#hidden_pass").val(password);
+
           }
         }
         else if($("#pass").val()!= null && ($("#pass").val() != password || deleted )){
