@@ -16,15 +16,15 @@ $("#pass").on({
 
       if(e.key in pressions_map) {
         let pass_position = pressions_map[e.key]["position"];
-
-        chars[pass_position]= chars[pass_position]==null? []:chars[pass_position];
-        let pressionDelta = new Date().getTime() - pressions_map[e.key]["start"];
-        chars[pass_position].push(pressionDelta);
+        chars[pass_position]= new Date().getTime() - pressions_map[e.key]["start"];
       }
 
       $("#hidden").val(JSON.stringify(chars))
       pass_position++;
+      /*let pressionEndMoment = new Date().getTime();
+      let pressionDelta = pressionEndMoment - pressions_map[e.key];
 
+      chars[pass_position]=pressionDelta;*/
     }
   }
 });
