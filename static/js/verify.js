@@ -1,22 +1,30 @@
 pressions=[]
 chars = []
-pass_position= 0;
+pass_position_counter= 0;
 pressions_map = {}
+
 $("#pass").on({
   keydown: function(e){
-    if(e.which != 8 && e.which != 9){
-    pressions_map[e.key] = new Date().getTime();
-  }
+    if(e.which != 8 && e.which != 9 && e.which != 13){
+      //pressions_map[e.key] = new Date().getTime();
+      pressions_map[e.key]={"start":new Date().getTime(),"position":pass_position_counter};
+      pass_position_counter++;
+    }
   },
   keyup: function(e){
     if(e.which != 8 && e.which != 9 && e.which != 13){
 
-      let pressionEndMoment = new Date().getTime();
-      let pressionDelta = pressionEndMoment - pressions_map[e.key];
+      if(e.key in pressions_map) {
+        let pass_position = pressions_map[e.key]["position"];
 
-      chars[pass_position]=pressionDelta;
+        chars[pass_position]= chars[pass_position]==null? []:chars[pass_position];
+        let pressionDelta = new Date().getTime() - pressions_map[e.key]["start"];
+        chars[pass_position].push(pressionDelta);
+      }
+
       $("#hidden").val(JSON.stringify(chars))
       pass_position++;
-}
+
+    }
   }
 });
