@@ -38,9 +38,23 @@ def verify():
 
         results = get_formula_result(user,pressions)
 
+        with open("stats.txt") as f:
+            stats = f.readlines()
+
+        stats.append(tester+"\t"+user+"\t"+str(results["percentage"])+"\n")
+
+        with open("stats.txt","w") as f:
+            f.writelines(stats)
+
         return render_template("verify.html",results=results,selected=user,tester=tester,users=users)
     else:
         return render_template("verify.html",users=users)
+
+@app.route("/stats")
+def stats():
+    with open("stats.txt") as f:
+        stats = f.read()
+    return render_template("stats.html",stats=stats)
 
 def get_formula_result(user,pass_pressions):
     #formula
