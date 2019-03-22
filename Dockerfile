@@ -14,5 +14,3 @@ RUN chown -R pyuser:pyuser /usr/src/app
 EXPOSE 8080
 
 USER pyuser:pyuser
-
-CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:8080", "--access-logfile", "-", "--capture-output", "--max-requests", "10", "-k", "gevent", "wsgi:app"]

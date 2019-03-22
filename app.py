@@ -2,7 +2,18 @@ from flask import Flask, render_template, request, jsonify
 import sys
 import statistics
 import json
+import base64
+import hashlib
+import os
+from pymongo import MongoClient
 app = Flask(__name__)
+
+client = MongoClient(
+    os.environ['DB_PORT_27017_TCP_ADDR'],
+    27017
+    )
+db = client.kbee
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 @app.route("/")
 def index():
@@ -15,40 +26,39 @@ def enroll():
     if request.method == "POST":
         user = request.form["user"]
         password = request.form["password"]
+        image = request.form["image"]
         pressions = json.loads(request.form.getlist("pressions")[0])
-        save_file(pressions,user,password)
-        return render_template("verify.html")
+        #save_file(pressions,user,password)
+        res = save_user_stats(pressions,user,password)
+        if res:
+            convert_and_save_image(image)
+            return render_template("exams.html")
+        else:
+             return render_template("index.html",error="Existing user")
 
 
 @app.route("/verify",methods=["POST","GET"])
 def verify():
-    with open("db.json") as db:
-        stats = json.load(db)
-    users=list(stats.keys())
     if request.method =="POST":
-        tester = request.form["tester"]
         user = request.form["user"]
         password = request.form["password"]
         pressions = json.loads(request.form.getlist("pressions")[0])
-
-        if  not user in stats or  stats[user]["password"] != password \
-         or len(stats[user]["pressions"]) != len(pressions):
+        #with open("db.json") as f:
+        #    stats = json.load(f)
+        db_user = db.users_collection.find_one({"_id":user})
+        if  not db_user or  db_user["password"] != hashlib.sha256(password.encode('UTF-8')).hexdigest() \
+         or len(db_user["pressions"]) != len(pressions):
             error = "Wrong password, wrong typing or wrong username"
-            return render_template("verify.html",error=error,selected=user,tester=tester,users=users)
+            return render_template("exams.html",error=error)
 
         results = get_formula_result(user,pressions)
-
-        with open("stats.txt") as f:
-            stats = f.readlines()
-
-        stats.append(tester+"\t"+user+"\t"+str(results["percentage"])+"\n")
-
-        with open("stats.txt","w") as f:
-            f.writelines(stats)
-
-        return render_template("verify.html",results=results,selected=user,tester=tester,users=users)
+        if results["percentage"] >= 75:
+            return render_template("exam.html",results=results)
+        else:
+            error = "Seems like you're not who you say you are... ("+str(results["percentage"])+"%) match"
+            return render_template("exams.html",error=error)
     else:
-        return render_template("verify.html",users=users)
+        return render_template("exams.html")
 
 @app.route("/stats")
 def stats():
@@ -56,16 +66,23 @@ def stats():
         stats = f.read()
     return render_template("stats.html",stats=stats)
 
+def convert_and_save_image(imgstring):
+    imgstring = imgstring.split(',')[1]
+    imgdata = base64.b64decode(imgstring)
+    filename = 'image.jpg'
+    with open(filename, 'wb') as f:
+        f.write(imgdata)
+
 def get_formula_result(user,pass_pressions):
     #formula
     counter = 0
     results=[]
+    db_user = db.users_collection.find_one({"_id":user})
+    #with open("db.json") as db:
+    #    stats = json.load(db)
 
-    with open("db.json") as db:
-        stats = json.load(db)
-
-    stat_pressions = stats[user]["pressions"]
-    password = stats[user]["password"]
+    stat_pressions = db_user["pressions"]
+    password = db_user["password"]
     for i,char_pression in enumerate(stat_pressions):
         average = statistics.mean(list(map(int, char_pression)))
         median = statistics.median(list(map(int, char_pression)))
@@ -87,10 +104,7 @@ def get_formula_result(user,pass_pressions):
             stat.append(pass_pressions[i])
             stat.pop(0)
 
-        stats[user]["pressions"] = stat_pressions
-
-        with open("db.json","w") as db:
-            json.dump(stats, db)
+        db.users_collection.update({"_id": user}, {"$set": {"pressions": stat_pressions}})
 
     return {"stats":results,"percentage":percentage}
 
@@ -103,13 +117,12 @@ def save_file(pressions,user,password):
     with open("db.json","w") as db:
         stats[user]={"password":password,"pressions":pressions}
         json.dump(stats, db)
-    #for char_pressions in pressions: #pression is an array of arrays of pressions for each char
 
-        #average = statistics.mean(list(map(int, char_pressions)))
-        #median = statistics.median(list(map(int, char_pressions)))
-        #sdeviation = statistics.stdev(list(map(int, char_pressions)))
-        #calculated_triples.append((average,median,sdeviation))
-
-    #stats[user]={"password":password,"triples":calculated_triples}
-    #with open("db.json","w") as db:
-        #json.dump(stats, db)
+def save_user_stats(pressions,user,password):
+    db_user = db.users_collection.find_one({"_id":user})
+    if not db_user:
+        hashed_pw = hashlib.sha256(password.encode('UTF-8')).hexdigest()
+        db.users_collection.insert_one({"_id":user,"password":hashed_pw,"pressions":pressions})
+        return True
+    else:
+         return False

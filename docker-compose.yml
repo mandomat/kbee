@@ -1,0 +1,13 @@
+web:
+  build: .
+  command: gunicorn -w 2 -b 0.0.0.0:8080 --access-logfile - --capture-output --max-requests 10 -k gevent wsgi:app
+  environment:
+    - VIRTUAL_HOST=kbee.whiletrue.co
+  ports:
+  - "8080:8080"
+  volumes:
+  - .:/usr/src/app
+  links:
+  - db
+db:
+  image: mongo:3.0.2

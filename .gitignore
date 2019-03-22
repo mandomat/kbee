@@ -5,3 +5,4 @@ instance/
 .webassets-cache
 venv/
 db.json
+stats.txt

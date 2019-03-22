@@ -4,7 +4,18 @@ pass_position_counter= 0;
 pressions_map = {};
 deleted = false;
 password=null;
+var stepper1= null
+
 $(document).ready(function(){
+  stepper1 = new Stepper($('#stepper1')[0])
+
+  Webcam.set({
+  width: 320,
+  height: 240,
+  image_format: 'jpeg',
+  jpeg_quality: 90
+});
+
 
   $(window).keydown(function(event){
     if(event.keyCode == 13) {
@@ -22,13 +33,16 @@ $(document).ready(function(){
         }
         if($("#pass").val()!= null && $("#pass").val() == password && !deleted){
 
-          counter_text = counter > 1 ? `${counter-1} passwords left`: "Premi invia BUSONE"
+          counter_text = counter > 1 ? `${counter-1} passwords left`: "Thank you!"
           $("#counter").text(counter_text);
           counter --;
 
           if(counter == 0){
+            $("#next").prop('disabled', false);
             $("#hidden").val(JSON.stringify(chars));
             $("#hidden_pass").val(password);
+            Webcam.attach( '#my_camera' );
+
 
           }
         }
@@ -80,3 +94,13 @@ $(document).ready(function(){
     }
   });
 });
+
+function takeSnapshot() {
+
+  Webcam.snap( function(data_uri) {
+    // display results in page
+    document.getElementById('results').innerHTML =
+    '<img src="'+data_uri+'"/>';
+    $("#image_data").val(data_uri)
+  } );
+}
