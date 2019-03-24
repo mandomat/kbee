@@ -27,6 +27,9 @@
       <li class="nav-item">
         <a class="nav-link" href="/verify">Verify</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/testenroll">Tests</a>
+      </li>
     </ul>
   </div>
 </nav>
@@ -100,28 +103,6 @@
 
     </div>
   </div>
-  <!--<form action="/enroll" method="POST">
-  <input type="text" name="user" placeholder="user" required>
-  <input type="text" id="pass" placeholder="password" required>
-  <p id="counter"></p>
-  <button type="submit" >Invia</button>
-  <input type="hidden" name="pressions" id="hidden"/>
-  <input type="hidden" name="password" id="hidden_pass"/>
-
-</form>-->
-<!--<br><br>
-Utonti: <br>
-{% if stats %}
-<ul>
-{% for key,value in stats.items() %}
-<li>user:<b>{{key}}</b><br> pass:<b>{{value.password}}</b></li>
-{% endfor %}
-</ul>
-
-{%else%}
-Nessun utonto
-
-{% endif %}-->
 </body>
 <script type="text/javascript" rel="stylesheet" src="{{ url_for('static', filename='js/webcamjs/webcam.min.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>

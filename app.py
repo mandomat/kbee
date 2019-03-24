@@ -9,8 +9,8 @@ from pymongo import MongoClient
 app = Flask(__name__)
 
 client = MongoClient(
-    os.environ['DB_PORT_27017_TCP_ADDR'],
-    27017
+    #os.environ['DB_PORT_27017_TCP_ADDR'],
+    #27017
     )
 db = client.kbee
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -28,13 +28,28 @@ def enroll():
         password = request.form["password"]
         image = request.form["image"]
         pressions = json.loads(request.form.getlist("pressions")[0])
-        #save_file(pressions,user,password)
         res = save_user_stats(pressions,user,password)
         if res:
             convert_and_save_image(image)
             return render_template("exams.html")
         else:
              return render_template("index.html",error="Existing user")
+
+@app.route("/testenroll",methods=["POST","GET"])
+def testenroll():
+    if request.method == "POST":
+        user = request.form["user"]
+        password = request.form["password"]
+        pressions = json.loads(request.form.getlist("pressions")[0])
+        save_file(pressions,user,password)
+        with open("db.json") as db:
+            stats = json.load(db)
+        users=list(stats.keys())
+        return render_template("testverify.html",users=users)
+    else:
+        with open("db.json") as db:
+            stats = json.load(db)
+        return render_template("testenroll.html",stats=stats)
 
 
 @app.route("/verify",methods=["POST","GET"])
@@ -60,6 +75,36 @@ def verify():
     else:
         return render_template("exams.html")
 
+@app.route("/testverify",methods=["POST","GET"])
+def testverify():
+    with open("db.json") as db:
+        stats = json.load(db)
+    users=list(stats.keys())
+    if request.method =="POST":
+        tester = request.form["tester"]
+        user = request.form["user"]
+        password = request.form["password"]
+        pressions = json.loads(request.form.getlist("pressions")[0])
+
+        if  not user in stats or  stats[user]["password"] != password \
+         or len(stats[user]["pressions"]) != len(pressions):
+            error = "Wrong password, wrong typing or wrong username"
+            return render_template("testverify.html",error=error,selected=user,tester=tester,users=users)
+
+        results = get_formula_result_test(user,pressions)
+
+        with open("stats.txt") as f:
+            stats = f.readlines()
+
+        stats.append(tester+"\t"+user+"\t"+str(results["percentage"])+"\n")
+
+        with open("stats.txt","w") as f:
+            f.writelines(stats)
+
+        return render_template("testverify.html",results=results,selected=user,tester=tester,users=users)
+    else:
+        return render_template("testverify.html",users=users)
+
 @app.route("/stats")
 def stats():
     with open("stats.txt") as f:
@@ -78,8 +123,6 @@ def get_formula_result(user,pass_pressions):
     counter = 0
     results=[]
     db_user = db.users_collection.find_one({"_id":user})
-    #with open("db.json") as db:
-    #    stats = json.load(db)
 
     stat_pressions = db_user["pressions"]
     password = db_user["password"]
@@ -105,6 +148,44 @@ def get_formula_result(user,pass_pressions):
             stat.pop(0)
 
         db.users_collection.update({"_id": user}, {"$set": {"pressions": stat_pressions}})
+
+    return {"stats":results,"percentage":percentage}
+
+def get_formula_result_test(user,pass_pressions):
+    #formula
+    counter = 0
+    results=[]
+
+    with open("db.json") as db:
+        stats = json.load(db)
+
+    stat_pressions = stats[user]["pressions"]
+    password = stats[user]["password"]
+    for i,char_pression in enumerate(stat_pressions):
+        average = statistics.mean(list(map(int, char_pression)))
+        median = statistics.median(list(map(int, char_pression)))
+        sdev = statistics.stdev(list(map(int, char_pression)))
+
+        pass_char_pression = pass_pressions[i]
+
+        if min(average,median)*(0.95- sdev/average) <= pass_char_pression and \
+        pass_char_pression <= max(average,median)*(1.05 + sdev/average):
+            results.append({password[i]:True})
+            counter +=1
+        else:
+            results.append({password[i]:False})
+
+    percentage = (counter/len(results))*100
+
+    if percentage >= 75:
+        for i,stat in enumerate(stat_pressions):
+            stat.append(pass_pressions[i])
+            stat.pop(0)
+
+        stats[user]["pressions"] = stat_pressions
+
+        with open("db.json","w") as db:
+            json.dump(stats, db)
 
     return {"stats":results,"percentage":percentage}
 
