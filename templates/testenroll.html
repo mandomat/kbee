@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>test kbee</title>
+  </head>
+  <body>
+    <a href="/testverify">verify</a>
+    <p>Ora dovremmo poter sbagliare in tutti i modi e in tutti i laghi.</p>
+    <form action="/testenroll" method="POST">
+      <input type="text" name="user" placeholder="user" required>
+      <input type="text" id="pass" placeholder="password" required>
+      <p id="counter"></p>
+      <button type="submit" >Invia</button>
+      <input type="hidden" name="pressions" id="hidden"/>
+      <input type="hidden" name="password" id="hidden_pass"/>
+
+    </form>
+    <br><br>
+    Utonti: <br>
+    {% if stats %}
+    <ul>
+      {% for key,value in stats.items() %}
+      <li>user:<b>{{key}}</b><br> pass:<b>{{value.password}}</b></li>
+      {% endfor %}
+    </ul>
+
+      {%else%}
+        Nessun utonto
+
+    {% endif %}
+  </body>
+  <script
+    src="http://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/testindex.js') }}"></script>
+</html>
