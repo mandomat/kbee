@@ -1,8 +1,13 @@
 Click==7.0
+cmake==3.13.3
+dlib==19.17.0
+face-recognition==1.2.3
+face-recognition-models==0.3.0
 Flask==1.0.2
 itsdangerous==1.1.0
 Jinja2==2.10
 MarkupSafe==1.1.1
+numpy==1.16.2
+Pillow==5.4.1
+pymongo==3.7.2
 Werkzeug==0.14.1
-gunicorn==19.9.0
-pymongo

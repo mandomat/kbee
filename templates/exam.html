@@ -10,6 +10,7 @@
 </head>
 
 <body >
+
   <nav class="navbar navbar-dark bg-dark">
     <a class="navbar-brand" href="#">
       <img src="{{ url_for('static', filename='images/logo.png') }}" width="50" height="50" alt="">
@@ -33,6 +34,15 @@
   </div>
 </nav>
   <div style="width:50%; margin: 0 auto;margin-top:5%">
+    <div class="row">
+      <div class="col-md"></div>
+      <div class="col-md">
+        <div style="" id="my_camera">
+        </div>
+      </div>
+      <div class="col-md"></div>
+    </div>
+<input id="user" type="hidden" value={{user}}></input>
   <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -55,6 +65,11 @@
 
           {{'%0.2f'| format(results.percentage|float)}}% di successo
           {% endif %}
+        </div>
+
+        <div class="alert alert-primary" role="alert">
+          Webcam results: are you {{user}} (<span id ="timer"></span>)?
+          <p id="webcam_result"></p>
         </div>
 
       </div>
@@ -94,5 +109,8 @@
 </form>
   </div>
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" rel="stylesheet" src="{{ url_for('static', filename='js/webcamjs/webcam.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/verify_image.js') }}?v=1"></script>
 
 </html>

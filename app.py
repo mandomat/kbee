@@ -6,6 +6,9 @@ import base64
 import hashlib
 import os
 from pymongo import MongoClient
+import face_recognition
+import numpy as np
+
 app = Flask(__name__)
 
 client = MongoClient(
@@ -30,8 +33,12 @@ def enroll():
         pressions = json.loads(request.form.getlist("pressions")[0])
         res = save_user_stats(pressions,user,password)
         if res:
-            convert_and_save_image(image)
-            return render_template("exams.html")
+            convert_and_save_image(image,user+".jpg")
+            known_image = face_recognition.load_image_file(user+".jpg")
+            biden_encoding = face_recognition.face_encodings(known_image)[0]
+
+            db.users_collection.update_one({"_id":user},{'$set':{"img_encoding":biden_encoding.tolist()}})
+            return render_template("exams.html",user=user)
         else:
              return render_template("index.html",error="Existing user")
 
@@ -68,7 +75,7 @@ def verify():
 
         results = get_formula_result(user,pressions)
         if results["percentage"] >= 75:
-            return render_template("exam.html",results=results)
+            return render_template("exam.html",results=results,user=user)
         else:
             error = "Seems like you're not who you say you are... ("+str(results["percentage"])+"%) match"
             return render_template("exams.html",error=error)
@@ -105,17 +112,34 @@ def testverify():
     else:
         return render_template("testverify.html",users=users)
 
+@app.route("/verify_image",methods=["POST"])
+def verify_image():
+    image = request.form["image"]
+    user = request.form["user"]
+    convert_and_save_image(image,user+".jpg")
+
+    unknown_image = face_recognition.load_image_file(user+".jpg")
+
+    biden_encoding = db.users_collection.find_one({"_id":user})["img_encoding"]
+    biden_encoding = np.array(biden_encoding)
+    unknown_encoding = face_recognition.face_encodings(unknown_image)[0]
+
+    results = face_recognition.compare_faces([biden_encoding], unknown_encoding)
+
+    print(results, file = sys.stderr)
+
+    return str(results)
+
 @app.route("/stats")
 def stats():
     with open("stats.txt") as f:
         stats = f.read()
     return render_template("stats.html",stats=stats)
 
-def convert_and_save_image(imgstring):
+def convert_and_save_image(imgstring,imagename):
     imgstring = imgstring.split(',')[1]
     imgdata = base64.b64decode(imgstring)
-    filename = 'image.jpg'
-    with open(filename, 'wb') as f:
+    with open(imagename, 'wb') as f:
         f.write(imgdata)
 
 def get_formula_result(user,pass_pressions):
