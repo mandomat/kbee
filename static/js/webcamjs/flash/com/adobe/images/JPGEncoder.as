@@ -571,7 +571,7 @@ package com.adobe.images
 		 * Constructor for JPEGEncoder class
 		 *
 		 * @param quality The quality level between 1 and 100 that detrmines the
-		 * level of compression used in the generated JPEG
+		 * level of compressure used in the generated JPEG
 		 * @langversion ActionScript 3.0
 		 * @playerversion Flash 9.0
 		 * @tiptext

@@ -2,6 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
   <head>
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}"/>
     <link rel="stylesheet" rel="stylesheet" href="{{ url_for('static', filename='css/stepper.css') }}">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <meta charset="utf-8">
@@ -74,7 +75,7 @@
             <small id="counter" class="form-text text-muted"></small>
 
           </div>
-          <input type="hidden" name="pressions" id="hidden"/>
+          <input type="hidden" name="pressures" id="hidden"/>
           <input type="hidden" name="password" id="hidden_pass"/>
           <button id="next" type="button" class="btn btn-warning" onclick="stepper1.next()" disabled >Next</button>
         </div>

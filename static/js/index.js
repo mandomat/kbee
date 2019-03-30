@@ -1,7 +1,7 @@
 counter=12;
 chars = [];
 pass_position_counter= 0;
-pressions_map = {};
+pressures_map = {};
 deleted = false;
 password=null;
 var stepper1= null
@@ -65,7 +65,7 @@ $(document).ready(function(){
       }
       else if(e.which != 8 && e.which != 9 && !deleted && password!=null){
 
-        pressions_map[e.key]={"start":new Date().getTime(),"position":pass_position_counter};
+        pressures_map[e.key]={"start":new Date().getTime(),"position":pass_position_counter};
         pass_position_counter++;
       }
 
@@ -80,14 +80,14 @@ $(document).ready(function(){
 
       if(e.which != 8 && e.which != 9 && e.which != 13 && !deleted && password!=null  ){
 
-        if(e.key in pressions_map) {
-          let pass_position = pressions_map[e.key]["position"];
+        if(e.key in pressures_map) {
+          let pass_position = pressures_map[e.key]["position"];
 
           if(pass_position_counter<=password.length && e.key == password[pass_position]){
 
             chars[pass_position]= chars[pass_position]==null? []:chars[pass_position];
-            let pressionDelta = new Date().getTime() - pressions_map[e.key]["start"];
-            chars[pass_position].push(pressionDelta);
+            let pressureDelta = new Date().getTime() - pressures_map[e.key]["start"];
+            chars[pass_position].push(pressureDelta);
           }
         }
       }

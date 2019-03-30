@@ -1,15 +1,11 @@
 web:
-  build: .
-  command: gunicorn -w 2 -b 0.0.0.0:8080 --access-logfile - --capture-output --max-requests 10 -k gevent wsgi:app
+  image: mandomat/kbee
   environment:
-    - VIRTUAL_HOST=kbee.whiletrue.co
-    - LETSENCRYPT_HOST=kbee.whiletrue.co
-    - LETSENCRYPT_EMAIL=mat.mandolini@gmail.com 
-    - VIRTUAL_PORT=8080    
-  ports:
-  - "8080:8080"
-    #volumes:
-    # - .:/usr/src/app
+        - VIRTUAL_HOST=kbee.whiletrue.co
+        - LETSENCRYPT_HOST=kbee.whiletrue.co
+        - LETSENCRYPT_EMAIL=mat.mandolini@gmail.com
+        - VIRTUAL_PORT=8080
+  command: gunicorn -w 2 -b 0.0.0.0:8080 --access-logfile - --capture-output --max-requests 10 -k gevent wsgi:app
   links:
   - db
 db:
